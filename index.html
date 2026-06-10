@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario Educativo — Secretaría de Gestión</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --azul:    #0f3460;
+  --azul2:   #16213e;
+  --celeste: #0ea5e9;
+  --bg:      #a7b0b8;
+  --card:    #ffffff;
+  --texto:   #1e293b;
+  --suave:   #64748b;
+  --borde:   #e2e8f0;
+  --verde:   #10b981;
+  --naranja: #f59e0b;
+  --rojo:    #ef4444;
+  --violeta: #8b5cf6;
+  --rosa:    #ec4899;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--texto);min-height:100vh}
+
+/* HEADER */
+header{background:linear-gradient(135deg,var(--azul2) 0%,var(--azul) 60%,#1a4a8a 100%);color:#fff;padding:0;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")}
+.header-inner{position:relative;display:flex;align-items:center;justify-content:space-between;padding:18px 24px;gap:12px;flex-wrap:wrap}
+.header-left{display:flex;align-items:center;gap:14px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;letter-spacing:2px;color:#fff}
+.header-titles h1{font-size:18px;font-weight:800}
+.header-titles p{font-size:11px;opacity:.6;margin-top:2px}
+.header-stats{display:flex;gap:10px;flex-wrap:wrap}
+.hstat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:7px 14px;text-align:center;min-width:60px}
+.hstat-n{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:#38bdf8}
+.hstat-l{font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.08em;margin-top:1px}
+
+/* SELECTOR ÁREA */
+.area-bar{background:#fff;border-bottom:2px solid var(--borde);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.area-label{font-size:12px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.08em}
+.area-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--borde);background:#fff;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;transition:all .2s;color:var(--suave)}
+.area-btn.act{color:#fff;border-color:transparent}
+.area-btn[data-area="Secundaria"].act{background:#0f3460}
+.area-btn[data-area="Primaria"].act{background:#10b981}
+.area-btn[data-area="Inicial"].act{background:#f59e0b}
+.area-btn[data-area="Técnica"].act{background:#8b5cf6}
+.area-btn[data-area="Gestión"].act{background:#0ea5e9}
+.area-indicator{margin-left:auto;font-size:12px;color:var(--suave)}
+.area-indicator strong{color:var(--texto)}
+
+/* TOOLBAR */
+.toolbar{padding:14px 24px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border-bottom:1px solid var(--borde)}
+.cal-nav-btns{display:flex;gap:6px;align-items:center}
+.nav-btn{background:var(--azul);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:14px;font-weight:700;transition:background .2s}
+.nav-btn:hover{background:var(--azul2)}
+.cal-mes-label{font-size:15px;font-weight:700;color:var(--azul);min-width:170px;text-align:center;font-family:'DM Mono',monospace}
+.btn{padding:8px 16px;border:none;border-radius:9px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-azul{background:var(--azul);color:#fff}
+.btn-azul:hover{background:var(--azul2)}
+.btn-verde{background:var(--verde);color:#fff}
+.btn-gris{background:#e2e8f0;color:var(--texto)}
+.btn-gris:hover{background:#cbd5e1}
+.btn-rojo{background:var(--rojo);color:#fff}
+.btn-sm{padding:5px 11px;font-size:11px;border-radius:7px}
+.vistas{display:flex;gap:4px;margin-left:auto}
+.vista-btn{padding:7px 14px;border:1.5px solid var(--borde);border-radius:8px;font-size:12px;font-weight:700;background:#fff;cursor:pointer;font-family:'Sora',sans-serif;color:var(--suave);transition:all .2s}
+.vista-btn.act{background:var(--azul);color:#fff;border-color:var(--azul)}
+
+/* VISTAS */
+.vista{display:none;padding:20px 24px}
+.vista.act{display:block}
+
+/* CALENDARIO */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-dayname{text-align:center;font-size:10px;font-weight:700;color:var(--suave);padding:6px 0;text-transform:uppercase;letter-spacing:.06em}
+.cal-cell{background:#fff;border:1.5px solid var(--borde);border-radius:10px;min-height:100px;padding:8px;cursor:default;transition:box-shadow .2s}
+.cal-cell.vacio{background:#f8fafc;border-color:#f0f4f8}
+.cal-cell.hoy{border-color:#0ea5e9;border-width:2px}
+.cal-cell.clickable:hover{box-shadow:0 3px 16px rgba(14,165,233,.15);border-color:#0ea5e9;cursor:pointer}
+.cal-num{font-size:11px;font-weight:700;color:var(--suave);margin-bottom:4px;font-family:'DM Mono',monospace}
+.cal-num.hoy-num{color:#0ea5e9;font-weight:800}
+.ev-chip{font-size:9px;padding:2px 6px;border-radius:5px;margin-bottom:2px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;cursor:pointer}
+.ev-mas{font-size:9px;color:var(--suave);margin-top:2px}
+
+/* COLORES POR TIPO */
+.tipo-Visita{background:#dbeafe;color:#1e40af}
+.tipo-Reunión{background:#d1fae5;color:#065f46}
+.tipo-Efeméride{background:#fef3c7;color:#92400e}
+.tipo-Cumpleaños{background:#fce7f3;color:#9d174d}
+.tipo-Capacitación{background:#ede9fe;color:#4c1d95}
+.tipo-Vencimiento{background:#fee2e2;color:#991b1b}
+.tipo-Otro{background:#f1f5f9;color:#475569}
+
+/* LISTA */
+.lista-header{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.lista-header input,.lista-header select{padding:8px 12px;border:1.5px solid var(--borde);border-radius:9px;font-size:12px;font-family:'Sora',sans-serif;background:#fff;color:var(--texto)}
+.lista-header input:focus,.lista-header select:focus{outline:none;border-color:#0ea5e9}
+.lista-header input{flex:1;min-width:180px}
+.lista-vacia{color:var(--suave);padding:40px;text-align:center;font-size:13px}
+.ev-card{background:#fff;border:1.5px solid var(--borde);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;transition:box-shadow .2s}
+.ev-card:hover{box-shadow:0 3px 16px rgba(0,0,0,.07)}
+.ev-fecha-col{min-width:52px;text-align:center;background:var(--azul);color:#fff;border-radius:9px;padding:6px 10px;flex-shrink:0}
+.ev-fecha-col .dia{font-size:20px;font-weight:800;font-family:'DM Mono',monospace;line-height:1}
+.ev-fecha-col .mes{font-size:9px;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-top:2px}
+.ev-body{flex:1}
+.ev-title{font-weight:700;font-size:14px;color:var(--azul);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ev-area-tag{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap}
+.area-tag-Secundaria{background:#dbeafe;color:#1e40af}
+.area-tag-Primaria{background:#d1fae5;color:#065f46}
+.area-tag-Inicial{background:#fef3c7;color:#92400e}
+.area-tag-Técnica{background:#ede9fe;color:#4c1d95}
+.area-tag-Gestión{background:#f1f5f9;color:#0f3460}
+.ev-desc{font-size:12px;color:var(--suave);margin-top:3px;line-height:1.6}
+.ev-meta{font-size:11px;color:var(--suave);margin-top:5px;display:flex;gap:10px;flex-wrap:wrap}
+.ev-acciones{display:flex;gap:6px;flex-shrink:0}
+.recordatorio-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:3px;vertical-align:middle}
+
+/* SEMANA */
+.semana-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.semana-dia{background:#fff;border:1.5px solid var(--borde);border-radius:10px;min-height:160px;padding:10px}
+.semana-dianame{font-size:11px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.semana-num{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:var(--azul);margin-bottom:8px}
+.semana-dia.hoy-dia{border-color:#0ea5e9;border-width:2px}
+.semana-dia.hoy-dia .semana-num{color:#0ea5e9}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(15,52,96,.5);z-index:1000;overflow-y:auto;padding:20px;backdrop-filter:blur(2px)}
+.modal-bg.open{display:flex;align-items:flex-start;justify-content:center}
+.modal{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:26px;margin-top:30px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{font-size:16px;font-weight:800;color:var(--azul);margin-bottom:18px}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:12px}
+.form-group label{display:block;font-size:11px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 11px;border:1.5px solid var(--borde);border-radius:9px;font-size:13px;font-family:'Sora',sans-serif;color:var(--texto);transition:border .2s;background:#fff}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#0ea5e9}
+.form-group textarea{resize:vertical;min-height:65px}
+.req{color:var(--rojo)}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.msg{padding:9px 13px;border-radius:8px;font-size:12px;margin-bottom:12px;display:none}
+.msg.ok{background:#d1fae5;color:#065f46;display:block}
+.msg.err{background:#fee2e2;color:#991b1b;display:block}
+.check-row{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:4px}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--naranja);cursor:pointer}
+
+/* MODAL DÍA */
+.dia-ev-item{background:#f0f4f8;border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.dia-ev-item h4{font-size:13px;font-weight:700;color:var(--azul);margin-bottom:4px}
+.dia-ev-item p{font-size:12px;color:var(--suave);margin-bottom:2px}
+
+/* SEMANA */
+@media(max-width:700px){.semana-grid{grid-template-columns:repeat(2,1fr)}.cal-grid{gap:3px}.cal-cell{min-height:70px;padding:5px}.header-stats{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="badge">EDUCACIÓN</div>
+      <div class="header-titles">
+        <h1>Calendario de Gestión Educativa</h1>
+        <p>Secretaría de Gestión — Catamarca 2026</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="hstat"><div class="hstat-n" id="statTotal">0</div><div class="hstat-l">Eventos</div></div>
+      <div class="hstat"><div class="hstat-n" id="statMes">0</div><div class="hstat-l">Este mes</div></div>
+      <div class="hstat"><div class="hstat-n" id="statHoy">0</div><div class="hstat-l">Hoy</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- SELECTOR ÁREA -->
+<div class="area-bar">
+  <span class="area-label">Área:</span>
+  <button class="area-btn" data-area="Gestión" onclick="setArea(this)">🗂 Gestión (ver todo)</button>
+  <button class="area-btn" data-area="Secundaria" onclick="setArea(this)">📚 Secundaria</button>
+  <button class="area-btn" data-area="Primaria" onclick="setArea(this)">🏫 Primaria</button>
+  <button class="area-btn" data-area="Inicial" onclick="setArea(this)">🌱 Inicial</button>
+  <button class="area-btn" data-area="Técnica" onclick="setArea(this)">🔧 Técnica</button>
+  <div class="area-indicator">Cargando como: <strong id="areaActualLabel">—</strong></div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="cal-nav-btns">
+    <button class="nav-btn" onclick="navMes(-1)">←</button>
+    <span class="cal-mes-label" id="mesLabel"></span>
+    <button class="nav-btn" onclick="navMes(+1)">→</button>
+    <button class="btn btn-gris btn-sm" onclick="irHoy()">Hoy</button>
+  </div>
+  <button class="btn btn-azul" onclick="abrirModal()">+ Nuevo evento</button>
+  <button class="btn btn-verde" onclick="abrirModalExport()">⬇️ Exportar PDF</button>
+  <div class="vistas">
+    <button class="vista-btn act" id="vbtn-mes" onclick="cambiarVista('mes')">Mes</button>
+    <button class="vista-btn" id="vbtn-semana" onclick="cambiarVista('semana')">Semana</button>
+    <button class="vista-btn" id="vbtn-lista" onclick="cambiarVista('lista')">Lista</button>
+  </div>
+</div>
+
+<!-- VISTA MES -->
+<div id="vista-mes" class="vista act">
+  <div class="cal-grid" id="calDaynames"></div>
+  <div class="cal-grid" id="calCells"></div>
+</div>
+
+<!-- VISTA SEMANA -->
+<div id="vista-semana" class="vista">
+  <div style="margin-bottom:12px;display:flex;justify-content:flex-end">
+    <button class="btn btn-verde btn-sm" onclick="exportarSemanaActual()">⬇️ PDF de esta semana</button>
+  </div>
+  <div class="semana-grid" id="semanaGrid"></div>
+</div>
+
+<!-- VISTA LISTA -->
+<div id="vista-lista" class="vista">
+  <div class="lista-header">
+    <input type="text" id="busqLista" placeholder="🔍 Buscar evento..." oninput="renderLista()">
+    <select id="filTipo" onchange="renderLista()">
+      <option value="">Todos los tipos</option>
+      <option>Visita</option><option>Reunión</option><option>Efeméride</option>
+      <option>Cumpleaños</option><option>Capacitación</option><option>Vencimiento</option><option>Otro</option>
+    </select>
+    <select id="filArea" onchange="renderLista()">
+      <option value="">Todas las áreas</option>
+      <option>Gestión</option><option>Secundaria</option><option>Primaria</option><option>Inicial</option><option>Técnica</option>
+    </select>
+  </div>
+  <div id="listaEventos"></div>
+</div>
+
+<!-- MODAL NUEVO/EDITAR -->
+<div class="modal-bg" id="modalEv">
+  <div class="modal">
+    <h3 id="modalTitulo">📌 Nuevo evento</h3>
+    <div id="msgModal" class="msg"></div>
+    <input type="hidden" id="mId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Título <span class="req">*</span></label>
+        <input type="text" id="mTitulo" placeholder="Ej: Reunión de directores">
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="mTipo">
+          <option>Reunión</option><option>Visita</option><option>Efeméride</option>
+          <option>Cumpleaños</option><option>Capacitación</option><option>Vencimiento</option><option>Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fecha <span class="req">*</span></label>
+        <input type="date" id="mFecha">
+      </div>
+      <div class="form-group">
+        <label>Hora (opcional)</label>
+        <input type="time" id="mHora">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Área</label>
+        <select id="mArea">
+          <option>Gestión</option><option>Secundaria</option><option>Primaria</option><option>Inicial</option><option>Técnica</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Lugar (opcional)</label>
+        <input type="text" id="mLugar" placeholder="Ej: Aula 3, UNCA">
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Descripción / notas</label>
+      <textarea id="mDesc" placeholder="Detalles del evento, participantes, instrucciones..."></textarea>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="mRecordatorio">
+      <label for="mRecordatorio" style="font-size:13px;cursor:pointer">🔔 Marcar como recordatorio importante</label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gris" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-azul" onclick="guardarEvento()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXPORTAR -->
+<div class="modal-bg" id="modalExport">
+  <div class="modal">
+    <h3>⬇️ Exportar cronograma a PDF</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Rango</label>
+        <select id="expRango" onchange="toggleExportFields()">
+          <option value="completo">Cronograma completo</option>
+          <option value="mes">Mes actual (el que estás viendo)</option>
+          <option value="semana">Semana actual</option>
+          <option value="dia">Día específico</option>
+        </select>
+      </div>
+      <div class="form-group" id="expDiaGroup" style="display:none">
+        <label>Fecha</label>
+        <input type="date" id="expDia">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Área a exportar</label>
+        <select id="expArea">
+          <option value="">Todas las áreas (vista Gestión)</option>
+          <option>Secundaria</option><option>Primaria</option><option>Inicial</option><option>Técnica</option><option>Gestión</option>
+        </select>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--suave);margin-bottom:4px">
+      Si elegís un área específica, el PDF incluye los eventos de esa área más los de Gestión (que aplican a todos).
+    </p>
+    <div class="modal-footer">
+      <button class="btn btn-gris" onclick="cerrarModalExport()">Cancelar</button>
+      <button class="btn btn-verde" onclick="ejecutarExport()">Generar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DÍA -->
+<div class="modal-bg" id="modalDia">
+  <div class="modal">
+    <h3 id="modalDiaTitulo">📅 Eventos del día</h3>
+    <div id="modalDiaContenido"></div>
+    <div class="modal-footer">
+      <button class="btn btn-verde btn-sm" onclick="exportarDiaActual()">⬇️ PDF de este día</button>
+      <button class="btn btn-azul btn-sm" onclick="cerrarModalDia();abrirModal()">+ Agregar evento este día</button>
+      <button class="btn btn-gris" onclick="cerrarModalDia()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var EVENTOS = JSON.parse(localStorage.getItem('educ_eventos') || '[]');
+var areaActual = localStorage.getItem('educ_area') || '';
+var calYear  = new Date().getFullYear();
+var calMonth = new Date().getMonth();
+var vistaActual = 'mes';
+var MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var DIAS  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+// Datos demo
+if (!EVENTOS.length) {
+  var hoy = new Date();
+  var yy = hoy.getFullYear(), mm = String(hoy.getMonth()+1).padStart(2,'0'), dd = String(hoy.getDate()).padStart(2,'0');
+  var m2 = String(hoy.getMonth()+1).padStart(2,'0');
+  function fiso(d,m){ return yy+'-'+String(m||hoy.getMonth()+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+  EVENTOS = [
+    {id:'demo1',titulo:'Reunión de directores',tipo:'Reunión',fecha:fiso(parseInt(dd)),hora:'09:00',area:'Gestión',lugar:'Salón principal',desc:'Reunión mensual de directores de todas las áreas.',recordatorio:true},
+    {id:'demo2',titulo:'Visita Escuela Secundaria N°1',tipo:'Visita',fecha:fiso(parseInt(dd)+2),hora:'08:30',area:'Secundaria',lugar:'UNCA',desc:'Muestra de carreras.',recordatorio:false},
+    {id:'demo3',titulo:'Día de la Bandera',tipo:'Efeméride',fecha:fiso(20,6),hora:'',area:'Gestión',lugar:'',desc:'Efeméride nacional.',recordatorio:true},
+    {id:'demo4',titulo:'Capacitación docente TIC',tipo:'Capacitación',fecha:fiso(parseInt(dd)+5),hora:'14:00',area:'Primaria',lugar:'Laboratorio',desc:'Formación en herramientas digitales.',recordatorio:false},
+    {id:'demo5',titulo:'Aniversario Escuela N°15',tipo:'Cumpleaños',fecha:fiso(parseInt(dd)+8),hora:'',area:'Inicial',lugar:'',desc:'Fundación en 1985.',recordatorio:false},
+    {id:'demo6',titulo:'Vencimiento actas de calificación',tipo:'Vencimiento',fecha:fiso(parseInt(dd)+3),hora:'',area:'Secundaria',lugar:'',desc:'Entrega obligatoria.',recordatorio:true},
+    {id:'demo7',titulo:'Jornada institucional Técnica',tipo:'Reunión',fecha:fiso(parseInt(dd)+1),hora:'08:00',area:'Técnica',lugar:'Escuela N°3',desc:'Planificación segundo semestre.',recordatorio:false}
+  ];
+  guardarLocal();
+}
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function guardarLocal(){ localStorage.setItem('educ_eventos',JSON.stringify(EVENTOS)); }
+function guardarArea(a){ localStorage.setItem('educ_area',a); }
+
+function fmt(iso){
+  if(!iso) return '—';
+  var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+// ── ÁREA ──
+function setArea(btn){
+  areaActual = btn.dataset.area;
+  guardarArea(areaActual);
+  document.querySelectorAll('.area-btn').forEach(function(b){ b.classList.remove('act'); });
+  btn.classList.add('act');
+  document.getElementById('areaActualLabel').textContent = areaActual;
+  actualizarStats();
+  renderVista();
+}
+
+function initArea(){
+  if (areaActual) {
+    var btn = document.querySelector('.area-btn[data-area="'+areaActual+'"]');
+    if (btn) { btn.classList.add('act'); document.getElementById('areaActualLabel').textContent = areaActual; }
+  }
+}
+
+// ── STATS ──
+function actualizarStats(){
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  var vis = filtrarArea(EVENTOS);
+  document.getElementById('statTotal').textContent = vis.length;
+  var mes = vis.filter(function(e){
+    if (!e.fecha) return false;
+    var p=e.fecha.split('-');
+    return parseInt(p[0])===calYear && parseInt(p[1])-1===calMonth;
+  });
+  document.getElementById('statMes').textContent = mes.length;
+  var todayStr = hoy.toISOString().slice(0,10);
+  document.getElementById('statHoy').textContent = vis.filter(function(e){ return e.fecha===todayStr; }).length;
+}
+
+function filtrarArea(lista){
+  if (!areaActual || areaActual === 'Gestión') return lista;
+  return lista.filter(function(e){ return e.area === areaActual || e.area === 'Gestión'; });
+}
+
+// ── VISTA ──
+function cambiarVista(v){
+  vistaActual = v;
+  ['mes','semana','lista'].forEach(function(n){
+    document.getElementById('vista-'+n).classList.toggle('act', n===v);
+    document.getElementById('vbtn-'+n).classList.toggle('act', n===v);
+  });
+  renderVista();
+}
+
+function renderVista(){
+  actualizarStats();
+  if (vistaActual==='mes') renderMes();
+  else if (vistaActual==='semana') renderSemana();
+  else renderLista();
+}
+
+function navMes(d){
+  calMonth+=d;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderVista();
+}
+
+function irHoy(){
+  calYear = new Date().getFullYear();
+  calMonth = new Date().getMonth();
+  renderVista();
+}
+
+// ── MES ──
+function renderMes(){
+  document.getElementById('mesLabel').textContent = MESES[calMonth]+' '+calYear;
+  var names=''; DIAS.forEach(function(d){ names+='<div class="cal-dayname">'+d+'</div>'; });
+  document.getElementById('calDaynames').innerHTML = names;
+  var primer = new Date(calYear,calMonth,1).getDay();
+  var total = new Date(calYear,calMonth+1,0).getDate();
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+
+  var porDia = {};
+  filtrarArea(EVENTOS).forEach(function(e){
+    if (!e.fecha) return;
+    var p=e.fecha.split('-');
+    if (parseInt(p[0])===calYear && parseInt(p[1])-1===calMonth){
+      var d=parseInt(p[2]); if(!porDia[d]) porDia[d]=[];
+      porDia[d].push(e);
+    }
+  });
+
+  var cells='';
+  for(var i=0;i<primer;i++) cells+='<div class="cal-cell vacio"></div>';
+  for(var d=1;d<=total;d++){
+    var dt = new Date(calYear,calMonth,d); dt.setHours(0,0,0,0);
+    var esHoy = dt.getTime()===hoy.getTime();
+    var evs = (porDia[d]||[]).sort(function(a,b){ return (a.hora||'').localeCompare(b.hora||''); });
+    var tieneEvs = evs.length>0;
+    cells+='<div class="cal-cell'+(esHoy?' hoy':'')+(tieneEvs?' clickable':'') +'" '+(tieneEvs?'onclick="abrirDia('+d+')"':'')+' >';
+    cells+='<div class="cal-num'+(esHoy?' hoy-num':'')+'">'+d+'</div>';
+    evs.slice(0,3).forEach(function(e){
+      cells+='<span class="ev-chip tipo-'+e.tipo+'" title="'+e.titulo+'">';
+      if(e.recordatorio) cells+='🔔 ';
+      cells+=e.titulo+'</span>';
+    });
+    if(evs.length>3) cells+='<div class="ev-mas">+'+(evs.length-3)+' más</div>';
+    cells+='</div>';
+  }
+  document.getElementById('calCells').innerHTML = cells;
+}
+
+// ── SEMANA ──
+var semInicioActual = null;
+function renderSemana(){
+  document.getElementById('mesLabel').textContent = MESES[calMonth]+' '+calYear;
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  var lunes = new Date(calYear,calMonth,1);
+  var primerDia = lunes.getDay();
+  var offset = primerDia===0 ? -6 : 1-primerDia;
+  var semIni = new Date(hoy); semIni.setDate(hoy.getDate() + offset + (hoy.getDay()===0?-6:1-hoy.getDay()));
+  semInicioActual = new Date(semIni);
+
+  var html='';
+  for(var i=0;i<7;i++){
+    var dia = new Date(semIni); dia.setDate(semIni.getDate()+i);
+    var esHoy = dia.getTime()===hoy.getTime();
+    var isoFecha = dia.toISOString().slice(0,10);
+    var evs = filtrarArea(EVENTOS).filter(function(e){ return e.fecha===isoFecha; });
+    html+='<div class="semana-dia'+(esHoy?' hoy-dia':'')+'">';
+    html+='<div class="semana-dianame">'+DIAS[dia.getDay()]+'</div>';
+    html+='<div class="semana-num">'+dia.getDate()+'</div>';
+    evs.forEach(function(e){
+      html+='<span class="ev-chip tipo-'+e.tipo+'" style="margin-bottom:4px;cursor:pointer" onclick="editarEvento(\''+e.id+'\')" title="'+e.titulo+'">';
+      if(e.recordatorio) html+='🔔 ';
+      html+=(e.hora?e.hora+' ':'')+e.titulo+'</span>';
+    });
+    html+='</div>';
+  }
+  document.getElementById('semanaGrid').innerHTML = html;
+}
+
+// ── LISTA ──
+function renderLista(){
+  document.getElementById('mesLabel').textContent = MESES[calMonth]+' '+calYear;
+  var q = (document.getElementById('busqLista').value||'').toLowerCase().trim();
+  var ft = document.getElementById('filTipo').value;
+  var fa = document.getElementById('filArea').value;
+
+  var lista = EVENTOS.filter(function(e){
+    if (ft && e.tipo!==ft) return false;
+    if (fa && e.area!==fa) return false;
+    if (!q) return true;
+    return (e.titulo+' '+e.desc+' '+e.lugar).toLowerCase().includes(q);
+  }).sort(function(a,b){ return (a.fecha||'').localeCompare(b.fecha||''); });
+
+  if (!lista.length){ document.getElementById('listaEventos').innerHTML='<div class="lista-vacia">No se encontraron eventos.</div>'; return; }
+
+  var html='';
+  lista.forEach(function(e){
+    var p=(e.fecha||'').split('-');
+    var dia=p[2]||'?'; var mesNom=MESES[parseInt(p[1])-1]||'';
+    html+='<div class="ev-card">';
+    html+='<div class="ev-fecha-col"><div class="dia">'+dia+'</div><div class="mes">'+mesNom.slice(0,3).toUpperCase()+'</div></div>';
+    html+='<div class="ev-body">';
+    html+='<div class="ev-title">';
+    if(e.recordatorio) html+='<span class="recordatorio-dot"></span>';
+    html+=e.titulo;
+    html+='<span class="ev-chip tipo-'+e.tipo+'" style="font-size:10px">'+e.tipo+'</span>';
+    html+='<span class="ev-area-tag area-tag-'+e.area+'">'+e.area+'</span>';
+    html+='</div>';
+    if(e.desc) html+='<div class="ev-desc">'+e.desc+'</div>';
+    html+='<div class="ev-meta">';
+    if(e.hora) html+='<span>🕐 '+e.hora+'</span>';
+    if(e.lugar) html+='<span>📍 '+e.lugar+'</span>';
+    html+='</div>';
+    html+='</div>';
+    html+='<div class="ev-acciones">';
+    html+='<button class="btn btn-gris btn-sm" onclick="editarEvento(\''+e.id+'\')">✏️</button>';
+    html+='<button class="btn btn-rojo btn-sm" onclick="eliminarEvento(\''+e.id+'\')">🗑️</button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  document.getElementById('listaEventos').innerHTML = html;
+}
+
+// ── MODAL ──
+function abrirModal(fecha){
+  document.getElementById('modalTitulo').textContent = '📌 Nuevo evento';
+  document.getElementById('mId').value = '';
+  document.getElementById('mTitulo').value = '';
+  document.getElementById('mTipo').value = 'Reunión';
+  document.getElementById('mFecha').value = fecha||new Date().toISOString().slice(0,10);
+  document.getElementById('mHora').value = '';
+  document.getElementById('mArea').value = areaActual && areaActual!=='Gestión' ? areaActual : 'Gestión';
+  document.getElementById('mLugar').value = '';
+  document.getElementById('mDesc').value = '';
+  document.getElementById('mRecordatorio').checked = false;
+  document.getElementById('msgModal').className='msg';
+  document.getElementById('modalEv').classList.add('open');
+}
+
+function editarEvento(id){
+  var e = EVENTOS.find(function(x){return x.id===id;});
+  if(!e) return;
+  document.getElementById('modalTitulo').textContent = '✏️ Editar evento';
+  document.getElementById('mId').value = e.id;
+  document.getElementById('mTitulo').value = e.titulo;
+  document.getElementById('mTipo').value = e.tipo;
+  document.getElementById('mFecha').value = e.fecha||'';
+  document.getElementById('mHora').value = e.hora||'';
+  document.getElementById('mArea').value = e.area;
+  document.getElementById('mLugar').value = e.lugar||'';
+  document.getElementById('mDesc').value = e.desc||'';
+  document.getElementById('mRecordatorio').checked = !!e.recordatorio;
+  document.getElementById('msgModal').className='msg';
+  document.getElementById('modalEv').classList.add('open');
+}
+
+function cerrarModal(){ document.getElementById('modalEv').classList.remove('open'); }
+
+function guardarEvento(){
+  var titulo = document.getElementById('mTitulo').value.trim();
+  var fecha  = document.getElementById('mFecha').value;
+  var msg    = document.getElementById('msgModal');
+  if (!titulo){ msg.className='msg err'; msg.textContent='El título es obligatorio.'; return; }
+  if (!fecha){  msg.className='msg err'; msg.textContent='La fecha es obligatoria.'; return; }
+
+  var id = document.getElementById('mId').value;
+  var ev = {
+    id: id||uid(),
+    titulo: titulo,
+    tipo: document.getElementById('mTipo').value,
+    fecha: fecha,
+    hora: document.getElementById('mHora').value,
+    area: document.getElementById('mArea').value,
+    lugar: document.getElementById('mLugar').value.trim(),
+    desc: document.getElementById('mDesc').value.trim(),
+    recordatorio: document.getElementById('mRecordatorio').checked
+  };
+
+  if (id) {
+    var idx = EVENTOS.findIndex(function(x){return x.id===id;});
+    if (idx>=0) EVENTOS[idx]=ev;
+  } else {
+    EVENTOS.push(ev);
+  }
+  guardarLocal();
+  cerrarModal();
+  renderVista();
+}
+
+function eliminarEvento(id){
+  if (!confirm('¿Eliminar este evento?')) return;
+  EVENTOS = EVENTOS.filter(function(e){return e.id!==id;});
+  guardarLocal();
+  renderVista();
+}
+
+// ── MODAL DÍA ──
+function abrirDia(d){
+  var isoFecha = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  var evs = filtrarArea(EVENTOS).filter(function(e){ return e.fecha===isoFecha; })
+                                .sort(function(a,b){ return (a.hora||'zz').localeCompare(b.hora||'zz'); });
+  document.getElementById('modalDiaTitulo').textContent = '📅 '+d+' de '+MESES[calMonth]+' '+calYear+' ('+evs.length+' evento'+(evs.length!==1?'s':'')+')';
+  var html='';
+  evs.forEach(function(e){
+    html+='<div class="dia-ev-item">';
+    html+='<h4>'+(e.recordatorio?'🔔 ':'')+e.titulo+' <span class="ev-chip tipo-'+e.tipo+'" style="display:inline;font-size:10px">'+e.tipo+'</span></h4>';
+    if(e.hora) html+='<p>🕐 '+e.hora+'</p>';
+    if(e.lugar) html+='<p>📍 '+e.lugar+'</p>';
+    if(e.desc) html+='<p>'+e.desc+'</p>';
+    html+='<div style="margin-top:8px;display:flex;gap:6px">';
+    html+='<button class="btn btn-azul btn-sm" onclick="cerrarModalDia();editarEvento(\''+e.id+'\')">✏️ Editar</button>';
+    html+='<button class="btn btn-rojo btn-sm" onclick="eliminarEvento(\''+e.id+'\');cerrarModalDia()">🗑️ Eliminar</button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  // Guardar fecha para botón agregar
+  document.getElementById('modalDia').querySelector('.btn-azul').onclick = function(){
+    cerrarModalDia(); abrirModal(isoFecha);
+  };
+  document.getElementById('modalDiaContenido').innerHTML = html;
+  document.getElementById('modalDia').classList.add('open');
+}
+function cerrarModalDia(){ document.getElementById('modalDia').classList.remove('open'); }
+
+// cerrar modales con click en fondo
+document.getElementById('modalEv').addEventListener('click',function(e){ if(e.target===this) cerrarModal(); });
+document.getElementById('modalDia').addEventListener('click',function(e){ if(e.target===this) cerrarModalDia(); });
+
+// ── EXPORTAR PDF ──
+function abrirModalExport(){
+  document.getElementById('expRango').value='completo';
+  document.getElementById('expDia').value=new Date().toISOString().slice(0,10);
+  document.getElementById('expArea').value = (areaActual && areaActual!=='Gestión') ? areaActual : '';
+  toggleExportFields();
+  document.getElementById('modalExport').classList.add('open');
+}
+function cerrarModalExport(){ document.getElementById('modalExport').classList.remove('open'); }
+function toggleExportFields(){
+  document.getElementById('expDiaGroup').style.display = document.getElementById('expRango').value==='dia' ? 'block':'none';
+}
+
+function filtrarPorAreaExport(lista, area){
+  if (!area) return lista;
+  return lista.filter(function(e){ return e.area===area || e.area==='Gestión'; });
+}
+
+function ejecutarExport(){
+  var rango = document.getElementById('expRango').value;
+  var area  = document.getElementById('expArea').value;
+  var lista = filtrarPorAreaExport(EVENTOS, area);
+  var titulo = '', subtitulo = '';
+
+  if (rango==='completo'){
+    titulo = 'Cronograma completo';
+  } else if (rango==='mes'){
+    lista = lista.filter(function(e){
+      if(!e.fecha) return false;
+      var p=e.fecha.split('-');
+      return parseInt(p[0])===calYear && parseInt(p[1])-1===calMonth;
+    });
+    titulo = 'Cronograma — '+MESES[calMonth]+' '+calYear;
+  } else if (rango==='semana'){
+    var ini = semInicioActual || new Date();
+    var fin = new Date(ini); fin.setDate(ini.getDate()+6);
+    var iniIso = ini.toISOString().slice(0,10), finIso = fin.toISOString().slice(0,10);
+    lista = lista.filter(function(e){ return e.fecha>=iniIso && e.fecha<=finIso; });
+    titulo = 'Cronograma semanal';
+    subtitulo = 'Del '+fmt(iniIso)+' al '+fmt(finIso);
+  } else if (rango==='dia'){
+    var f = document.getElementById('expDia').value;
+    if(!f){ alert('Elegí una fecha.'); return; }
+    lista = lista.filter(function(e){ return e.fecha===f; });
+    titulo = 'Cronograma del día';
+    subtitulo = fmt(f);
+  }
+
+  lista = lista.slice().sort(function(a,b){
+    var fa=(a.fecha||''), fb=(b.fecha||'');
+    if (fa!==fb) return fa.localeCompare(fb);
+    return (a.hora||'zz').localeCompare(b.hora||'zz');
+  });
+
+  if (!lista.length){ alert('No hay eventos para ese rango.'); return; }
+
+  generarPDFAgenda(lista, titulo, subtitulo, area);
+  cerrarModalExport();
+}
+
+function exportarDiaActual(){
+  var titleText = document.getElementById('modalDiaTitulo').textContent;
+  // Extraer fecha desde el título del modal (formato: 📅 D de Mes YYYY (...))
+  var m = titleText.match(/(\d+) de (\w+) (\d+)/);
+  if(!m){ alert('No se pudo determinar la fecha.'); return; }
+  var diaNum = parseInt(m[1]);
+  var mesIdx = MESES.indexOf(m[2]);
+  var anio = parseInt(m[3]);
+  var fIso = anio+'-'+String(mesIdx+1).padStart(2,'0')+'-'+String(diaNum).padStart(2,'0');
+  var area = (areaActual && areaActual!=='Gestión') ? areaActual : '';
+  var lista = filtrarPorAreaExport(EVENTOS, area).filter(function(e){ return e.fecha===fIso; })
+    .sort(function(a,b){ return (a.hora||'zz').localeCompare(b.hora||'zz'); });
+  if(!lista.length){ alert('No hay eventos para exportar.'); return; }
+  generarPDFAgenda(lista, 'Cronograma del día', fmt(fIso), area);
+}
+
+function exportarSemanaActual(){
+  var ini = semInicioActual || new Date();
+  var fin = new Date(ini); fin.setDate(ini.getDate()+6);
+  var iniIso = ini.toISOString().slice(0,10), finIso = fin.toISOString().slice(0,10);
+  var area = (areaActual && areaActual!=='Gestión') ? areaActual : '';
+  var lista = filtrarPorAreaExport(EVENTOS, area).filter(function(e){ return e.fecha>=iniIso && e.fecha<=finIso; })
+    .sort(function(a,b){
+      var fa=(a.fecha||''), fb=(b.fecha||'');
+      if (fa!==fb) return fa.localeCompare(fb);
+      return (a.hora||'zz').localeCompare(b.hora||'zz');
+    });
+  if(!lista.length){ alert('No hay eventos para esa semana.'); return; }
+  generarPDFAgenda(lista, 'Cronograma semanal', 'Del '+fmt(iniIso)+' al '+fmt(finIso), area);
+}
+
+function generarPDFAgenda(lista, titulo, subtitulo, area){
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  var hoyStr = new Date().toLocaleDateString('es-AR');
+  var marL=14, marR=196;
+
+  doc.setFillColor(15,52,96);
+  doc.rect(0,0,210,30,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(15);
+  doc.text(titulo.toUpperCase(), marL, 12);
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  if (subtitulo) doc.text(subtitulo, marL, 19);
+  doc.text('Área: '+(area||'Todas / Gestión'), marL, subtitulo?25:19);
+  doc.text('Generado: '+hoyStr, marR, 12, {align:'right'});
+  doc.text('Eventos: '+lista.length, marR, 19, {align:'right'});
+
+  var y = 38;
+  doc.autoTable({
+    startY: y, margin:{left:marL,right:14},
+    head:[['Fecha','Hora','Tipo','Título / Descripción','Área','Lugar']],
+    body: lista.map(function(e){
+      var titDesc = e.titulo + (e.desc ? '\n'+e.desc : '');
+      if (e.recordatorio) titDesc = '🔔 ' + titDesc;
+      return [fmt(e.fecha), e.hora||'—', e.tipo, titDesc, e.area, e.lugar||'—'];
+    }),
+    theme:'striped',
+    headStyles:{fillColor:[15,52,96],textColor:255,fontSize:8,fontStyle:'bold'},
+    styles:{fontSize:8,cellPadding:2.5,valign:'top'},
+    alternateRowStyles:{fillColor:[245,248,252]},
+    columnStyles:{
+      0:{cellWidth:20},
+      1:{cellWidth:14,halign:'center'},
+      2:{cellWidth:22},
+      3:{cellWidth:78},
+      4:{cellWidth:22},
+      5:{cellWidth:26}
+    }
+  });
+
+  var totalP = doc.internal.getNumberOfPages();
+  for(var p=1;p<=totalP;p++){
+    doc.setPage(p);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(160,160,160);
+    doc.text('Calendario de Gestión Educativa — Catamarca 2026  |  Pág. '+p+' de '+totalP, 105, 290, {align:'center'});
+  }
+
+  var nombreArchivo = titulo.replace(/[^a-zA-Z0-9]+/g,'_') + (area?'_'+area:'') + '_' + hoyStr.replace(/\//g,'-');
+  doc.save(nombreArchivo+'.pdf');
+}
+
+document.getElementById('modalExport').addEventListener('click',function(e){ if(e.target===this) cerrarModalExport(); });
+
+// ── INIT ──
+initArea();
+renderVista();
+</script>
+</body>
+</html>
