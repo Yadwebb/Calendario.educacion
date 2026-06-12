@@ -7,12 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
 <style>
 :root {
   --azul:    #0f3460;
   --azul2:   #16213e;
   --celeste: #0ea5e9;
-  --bg:      #a7b0b8;
+  --bg:      #c4cbd1;
   --card:    #ffffff;
   --texto:   #1e293b;
   --suave:   #64748b;
@@ -42,7 +43,8 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
 /* SELECTOR ÁREA */
 .area-bar{background:#fff;border-bottom:2px solid var(--borde);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .area-label{font-size:12px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.08em}
-.area-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--borde);background:#fff;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;transition:all .2s;color:var(--suave)}
+.area-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--borde);background:#fff;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;transition:all .2s;color:var(--suave);display:inline-flex;align-items:center;gap:6px}
+.area-btn i{font-size:14px}
 .area-btn.act{color:#fff;border-color:transparent}
 .area-btn[data-area="Secundaria"].act{background:#0f3460}
 .area-btn[data-area="Primaria"].act{background:#10b981}
@@ -126,6 +128,8 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
 .semana-num{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:var(--azul);margin-bottom:8px}
 .semana-dia.hoy-dia{border-color:#0ea5e9;border-width:2px}
 .semana-dia.hoy-dia .semana-num{color:#0ea5e9}
+.semana-contenido{display:flex;flex-direction:column;gap:4px}
+.semana-vacio{display:none}
 
 /* MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(15,52,96,.5);z-index:1000;overflow-y:auto;padding:20px;backdrop-filter:blur(2px)}
@@ -152,6 +156,133 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
 
 /* SEMANA */
 @media(max-width:700px){.semana-grid{grid-template-columns:repeat(2,1fr)}.cal-grid{gap:3px}.cal-cell{min-height:70px;padding:5px}.header-stats{display:none}}
+
+/* ════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE APP STYLE
+   ════════════════════════════════════════════════════════ */
+@media(max-width:680px){
+  body{padding-bottom:64px} /* espacio para barra inferior */
+
+  /* HEADER */
+  .header-inner{padding:14px 14px 12px;gap:10px}
+  .header-left{gap:10px;width:100%}
+  .badge{padding:6px 11px;font-size:12px;letter-spacing:1.5px}
+  .header-titles h1{font-size:15px;line-height:1.25}
+  .header-titles p{font-size:10px}
+  .header-stats{display:flex;width:100%;gap:6px}
+  .hstat{flex:1;padding:6px 4px;min-width:0}
+  .hstat-n{font-size:15px}
+  .hstat-l{font-size:8.5px}
+
+  /* SELECTOR ÁREA — scroll horizontal tipo chips de app */
+  .area-bar{padding:10px 12px;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;scrollbar-width:none}
+  .area-bar::-webkit-scrollbar{display:none}
+  .area-label{display:none}
+  .area-btn{flex-shrink:0;padding:9px 14px;font-size:12.5px}
+  .area-indicator{display:none}
+
+  /* TOOLBAR → barra de navegación inferior fija */
+  .toolbar{
+    position:fixed;bottom:0;left:0;right:0;z-index:500;
+    background:#fff;border-top:1px solid var(--borde);border-bottom:none;
+    padding:8px 10px;
+    padding-bottom:calc(8px + env(safe-area-inset-bottom));
+    display:flex;align-items:center;gap:6px;
+    box-shadow:0 -4px 16px rgba(15,52,96,.08);
+  }
+  .cal-nav-btns{order:1;flex:0 0 auto;gap:4px}
+  .nav-btn{padding:9px 11px;font-size:13px;border-radius:10px}
+  .cal-mes-label{font-size:12px;min-width:auto;flex:1}
+  .cal-nav-btns .btn-gris{padding:9px 10px;font-size:11px}
+  .vistas{
+    order:3;width:100%;margin-left:0;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+    margin-top:6px;
+  }
+  .vista-btn{padding:9px 4px;font-size:11.5px;text-align:center;border-radius:10px}
+  .btn-azul[onclick^="abrirModal"]{
+    order:2;flex:0 0 auto;
+    width:46px;height:46px;border-radius:50%;
+    padding:0;justify-content:center;
+    font-size:0; /* ocultar texto, dejar solo icono */
+    box-shadow:0 4px 14px rgba(15,52,96,.35);
+    position:relative;top:-2px;
+  }
+  .btn-azul[onclick^="abrirModal"] i{font-size:20px}
+  .btn-verde[onclick="abrirModalExport()"]{
+    order:4;flex:0 0 auto;
+    width:42px;height:42px;border-radius:12px;
+    padding:0;justify-content:center;font-size:0;
+  }
+  .btn-verde[onclick="abrirModalExport()"] i{font-size:17px}
+
+  /* VISTAS — contenido */
+  .vista{padding:12px 10px 16px}
+
+  /* CALENDARIO MES */
+  .cal-grid{gap:3px}
+  .cal-dayname{font-size:9px;padding:4px 0}
+  .cal-cell{min-height:64px;padding:4px;border-radius:8px}
+  .cal-num{font-size:10px;margin-bottom:2px}
+  .ev-chip{font-size:7.5px;padding:1.5px 3px;border-radius:4px;margin-bottom:1px}
+  .ev-mas{font-size:7.5px}
+
+  /* SEMANA → lista vertical de tarjetas por día */
+  .semana-grid{display:flex;flex-direction:column;gap:8px;grid-template-columns:unset}
+  .semana-dia{min-height:auto;padding:12px 14px;display:flex;align-items:flex-start;gap:12px}
+  .semana-dianame{font-size:10px;margin-bottom:0;width:38px;flex-shrink:0;padding-top:3px}
+  .semana-num{font-size:22px;margin-bottom:0;width:38px;flex-shrink:0;text-align:center}
+  .semana-dia > div:nth-child(3){display:none} /* placeholder no usado */
+  .semana-contenido{flex:1;display:flex;flex-direction:column;gap:4px}
+  .semana-contenido .ev-chip{display:block;width:100%;font-size:11px;padding:5px 8px;white-space:normal}
+  .semana-vacio{display:inline-block;font-size:11px;color:var(--suave);padding-top:4px}
+
+  /* LISTA */
+  .lista-header{gap:8px}
+  .lista-header input{font-size:13px;padding:10px 12px}
+  .lista-header select{flex:1;min-width:0;font-size:12px;padding:10px 8px}
+  .ev-card{padding:12px;gap:10px;border-radius:12px}
+  .ev-fecha-col{min-width:46px;padding:5px 8px}
+  .ev-fecha-col .dia{font-size:17px}
+  .ev-title{font-size:13px;gap:6px}
+  .ev-acciones{flex-direction:column;gap:5px}
+  .ev-acciones .btn{padding:6px 9px}
+
+  /* MODALES — pantalla completa estilo app */
+  .modal-bg{padding:0;align-items:stretch}
+  .modal-bg.open{display:block}
+  .modal{
+    max-width:100%;width:100%;min-height:100%;
+    margin-top:0;border-radius:0;
+    padding:18px 16px calc(90px + env(safe-area-inset-bottom));
+    box-shadow:none;
+    display:flex;flex-direction:column;
+  }
+  .modal h3{font-size:18px;padding-top:4px;margin-bottom:16px}
+  .form-row{grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+  .form-group input,.form-group select,.form-group textarea{padding:11px 12px;font-size:14px}
+  .modal-footer{
+    position:fixed;left:0;right:0;bottom:0;
+    background:#fff;border-top:1px solid var(--borde);
+    padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom));
+    margin-top:0;z-index:1001;
+  }
+  .modal-footer .btn{flex:1;justify-content:center;padding:12px}
+
+  /* MODAL DÍA: lista de eventos */
+  .dia-ev-item{padding:12px}
+  .dia-ev-item h4{font-size:13.5px}
+
+  /* check row más grande para tocar */
+  .check-row{padding:6px 0}
+  .check-row input[type=checkbox]{width:20px;height:20px}
+}
+
+@media(max-width:380px){
+  .header-titles h1{font-size:13.5px}
+  .vista-btn{font-size:10.5px;padding:8px 2px}
+  .area-btn{font-size:11.5px;padding:8px 12px}
+}
 </style>
 </head>
 <body>
@@ -169,6 +300,10 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
       <div class="hstat"><div class="hstat-n" id="statTotal">0</div><div class="hstat-l">Eventos</div></div>
       <div class="hstat"><div class="hstat-n" id="statMes">0</div><div class="hstat-l">Este mes</div></div>
       <div class="hstat"><div class="hstat-n" id="statHoy">0</div><div class="hstat-l">Hoy</div></div>
+      <div class="hstat" id="syncStat" style="cursor:pointer" onclick="sincronizar(true)" title="Click para actualizar">
+        <div class="hstat-n" style="font-size:16px"><i class="ti ti-cloud" id="syncIcon"></i></div>
+        <div class="hstat-l" id="syncLabel">Sincronizado</div>
+      </div>
     </div>
   </div>
 </header>
@@ -176,24 +311,24 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
 <!-- SELECTOR ÁREA -->
 <div class="area-bar">
   <span class="area-label">Área:</span>
-  <button class="area-btn" data-area="Gestión" onclick="setArea(this)">🗂 Gestión (ver todo)</button>
-  <button class="area-btn" data-area="Secundaria" onclick="setArea(this)">📚 Secundaria</button>
-  <button class="area-btn" data-area="Primaria" onclick="setArea(this)">🏫 Primaria</button>
-  <button class="area-btn" data-area="Inicial" onclick="setArea(this)">🌱 Inicial</button>
-  <button class="area-btn" data-area="Técnica" onclick="setArea(this)">🔧 Técnica</button>
+  <button class="area-btn" data-area="Gestión" onclick="setArea(this)"><i class="ti ti-layout-dashboard"></i> Gestión (ver todo)</button>
+  <button class="area-btn" data-area="Secundaria" onclick="setArea(this)"><i class="ti ti-school"></i> Secundaria</button>
+  <button class="area-btn" data-area="Primaria" onclick="setArea(this)"><i class="ti ti-building"></i> Primaria</button>
+  <button class="area-btn" data-area="Inicial" onclick="setArea(this)"><i class="ti ti-puzzle"></i> Inicial</button>
+  <button class="area-btn" data-area="Técnica" onclick="setArea(this)"><i class="ti ti-tools"></i> Técnica</button>
   <div class="area-indicator">Cargando como: <strong id="areaActualLabel">—</strong></div>
 </div>
 
 <!-- TOOLBAR -->
 <div class="toolbar">
   <div class="cal-nav-btns">
-    <button class="nav-btn" onclick="navMes(-1)">←</button>
+    <button class="nav-btn" onclick="navMes(-1)"><i class="ti ti-chevron-left"></i></button>
     <span class="cal-mes-label" id="mesLabel"></span>
-    <button class="nav-btn" onclick="navMes(+1)">→</button>
+    <button class="nav-btn" onclick="navMes(+1)"><i class="ti ti-chevron-right"></i></button>
     <button class="btn btn-gris btn-sm" onclick="irHoy()">Hoy</button>
   </div>
-  <button class="btn btn-azul" onclick="abrirModal()">+ Nuevo evento</button>
-  <button class="btn btn-verde" onclick="abrirModalExport()">⬇️ Exportar PDF</button>
+  <button class="btn btn-azul" onclick="abrirModal()"><i class="ti ti-plus"></i> Nuevo evento</button>
+  <button class="btn btn-verde" onclick="abrirModalExport()"><i class="ti ti-download"></i> Exportar PDF</button>
   <div class="vistas">
     <button class="vista-btn act" id="vbtn-mes" onclick="cambiarVista('mes')">Mes</button>
     <button class="vista-btn" id="vbtn-semana" onclick="cambiarVista('semana')">Semana</button>
@@ -210,7 +345,7 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
 <!-- VISTA SEMANA -->
 <div id="vista-semana" class="vista">
   <div style="margin-bottom:12px;display:flex;justify-content:flex-end">
-    <button class="btn btn-verde btn-sm" onclick="exportarSemanaActual()">⬇️ PDF de esta semana</button>
+    <button class="btn btn-verde btn-sm" onclick="exportarSemanaActual()"><i class="ti ti-download"></i> PDF de esta semana</button>
   </div>
   <div class="semana-grid" id="semanaGrid"></div>
 </div>
@@ -218,7 +353,7 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
 <!-- VISTA LISTA -->
 <div id="vista-lista" class="vista">
   <div class="lista-header">
-    <input type="text" id="busqLista" placeholder="🔍 Buscar evento..." oninput="renderLista()">
+    <input type="text" id="busqLista" placeholder="Buscar evento..." oninput="renderLista()">
     <select id="filTipo" onchange="renderLista()">
       <option value="">Todos los tipos</option>
       <option>Visita</option><option>Reunión</option><option>Efeméride</option>
@@ -235,7 +370,7 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
 <!-- MODAL NUEVO/EDITAR -->
 <div class="modal-bg" id="modalEv">
   <div class="modal">
-    <h3 id="modalTitulo">📌 Nuevo evento</h3>
+    <h3 id="modalTitulo"><i class="ti ti-note"></i> Nuevo evento</h3>
     <div id="msgModal" class="msg"></div>
     <input type="hidden" id="mId">
     <div class="form-row">
@@ -279,7 +414,7 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
     </div>
     <div class="check-row">
       <input type="checkbox" id="mRecordatorio">
-      <label for="mRecordatorio" style="font-size:13px;cursor:pointer">🔔 Marcar como recordatorio importante</label>
+      <label for="mRecordatorio" style="font-size:13px;cursor:pointer"><i class="ti ti-bell"></i> Marcar como recordatorio importante</label>
     </div>
     <div class="modal-footer">
       <button class="btn btn-gris" onclick="cerrarModal()">Cancelar</button>
@@ -291,7 +426,7 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
 <!-- MODAL EXPORTAR -->
 <div class="modal-bg" id="modalExport">
   <div class="modal">
-    <h3>⬇️ Exportar cronograma a PDF</h3>
+    <h3><i class="ti ti-download"></i> Exportar cronograma a PDF</h3>
     <div class="form-row">
       <div class="form-group">
         <label>Rango</label>
@@ -329,46 +464,89 @@ header::before{content:'';position:absolute;inset:0;background:url("data:image/s
 <!-- MODAL DÍA -->
 <div class="modal-bg" id="modalDia">
   <div class="modal">
-    <h3 id="modalDiaTitulo">📅 Eventos del día</h3>
+    <h3 id="modalDiaTitulo"><i class="ti ti-calendar-event"></i> Eventos del día</h3>
     <div id="modalDiaContenido"></div>
     <div class="modal-footer">
-      <button class="btn btn-verde btn-sm" onclick="exportarDiaActual()">⬇️ PDF de este día</button>
-      <button class="btn btn-azul btn-sm" onclick="cerrarModalDia();abrirModal()">+ Agregar evento este día</button>
+      <button class="btn btn-verde btn-sm" onclick="exportarDiaActual()"><i class="ti ti-download"></i> PDF de este día</button>
+      <button class="btn btn-azul btn-sm" onclick="cerrarModalDia();abrirModal()"><i class="ti ti-plus"></i> Agregar evento este día</button>
       <button class="btn btn-gris" onclick="cerrarModalDia()">Cerrar</button>
     </div>
   </div>
 </div>
 
 <script>
-var EVENTOS = JSON.parse(localStorage.getItem('educ_eventos') || '[]');
+var JSONBIN_ID  = '6a2b6c84f5f4af5e29e39ce3';
+var JSONBIN_KEY = '$2a$10$0UM2x7Rd.VA7vojQ9ByChORYHEXfZ42omdauSACA4AFi1akeWPQoi';
+var JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_ID;
+
+var EVENTOS = [];
 var areaActual = localStorage.getItem('educ_area') || '';
 var calYear  = new Date().getFullYear();
 var calMonth = new Date().getMonth();
 var vistaActual = 'mes';
 var MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var DIAS  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-
-// Datos demo
-if (!EVENTOS.length) {
-  var hoy = new Date();
-  var yy = hoy.getFullYear(), mm = String(hoy.getMonth()+1).padStart(2,'0'), dd = String(hoy.getDate()).padStart(2,'0');
-  var m2 = String(hoy.getMonth()+1).padStart(2,'0');
-  function fiso(d,m){ return yy+'-'+String(m||hoy.getMonth()+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
-  EVENTOS = [
-    {id:'demo1',titulo:'Reunión de directores',tipo:'Reunión',fecha:fiso(parseInt(dd)),hora:'09:00',area:'Gestión',lugar:'Salón principal',desc:'Reunión mensual de directores de todas las áreas.',recordatorio:true},
-    {id:'demo2',titulo:'Visita Escuela Secundaria N°1',tipo:'Visita',fecha:fiso(parseInt(dd)+2),hora:'08:30',area:'Secundaria',lugar:'UNCA',desc:'Muestra de carreras.',recordatorio:false},
-    {id:'demo3',titulo:'Día de la Bandera',tipo:'Efeméride',fecha:fiso(20,6),hora:'',area:'Gestión',lugar:'',desc:'Efeméride nacional.',recordatorio:true},
-    {id:'demo4',titulo:'Capacitación docente TIC',tipo:'Capacitación',fecha:fiso(parseInt(dd)+5),hora:'14:00',area:'Primaria',lugar:'Laboratorio',desc:'Formación en herramientas digitales.',recordatorio:false},
-    {id:'demo5',titulo:'Aniversario Escuela N°15',tipo:'Cumpleaños',fecha:fiso(parseInt(dd)+8),hora:'',area:'Inicial',lugar:'',desc:'Fundación en 1985.',recordatorio:false},
-    {id:'demo6',titulo:'Vencimiento actas de calificación',tipo:'Vencimiento',fecha:fiso(parseInt(dd)+3),hora:'',area:'Secundaria',lugar:'',desc:'Entrega obligatoria.',recordatorio:true},
-    {id:'demo7',titulo:'Jornada institucional Técnica',tipo:'Reunión',fecha:fiso(parseInt(dd)+1),hora:'08:00',area:'Técnica',lugar:'Escuela N°3',desc:'Planificación segundo semestre.',recordatorio:false}
-  ];
-  guardarLocal();
-}
+var sincronizando = false;
 
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
-function guardarLocal(){ localStorage.setItem('educ_eventos',JSON.stringify(EVENTOS)); }
 function guardarArea(a){ localStorage.setItem('educ_area',a); }
+
+function setSyncStatus(estado){
+  // estado: 'ok' | 'cargando' | 'error'
+  var icon = document.getElementById('syncIcon');
+  var label = document.getElementById('syncLabel');
+  if (estado==='cargando'){ icon.className='ti ti-cloud-up'; label.textContent='Sincronizando...'; }
+  else if (estado==='error'){ icon.className='ti ti-cloud-off'; label.textContent='Sin conexión'; }
+  else { icon.className='ti ti-cloud-check'; label.textContent='Sincronizado'; }
+}
+
+// Traer eventos desde JSONBin
+function sincronizar(manual){
+  if (sincronizando) return;
+  sincronizando = true;
+  setSyncStatus('cargando');
+  fetch(JSONBIN_URL + '/latest', {
+    headers: { 'X-Master-Key': JSONBIN_KEY }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    var nuevos = (data && data.record && data.record.eventos) ? data.record.eventos : [];
+    EVENTOS = nuevos;
+    setSyncStatus('ok');
+    sincronizando = false;
+    renderVista();
+  })
+  .catch(function(err){
+    console.error('Error al sincronizar:', err);
+    setSyncStatus('error');
+    sincronizando = false;
+    if (manual) alert('No se pudo conectar con el servidor de datos. Verificá tu conexión a internet.');
+  });
+}
+
+// Guardar EVENTOS completo en JSONBin
+function guardarRemoto(callback){
+  setSyncStatus('cargando');
+  fetch(JSONBIN_URL, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': JSONBIN_KEY
+    },
+    body: JSON.stringify({ eventos: EVENTOS })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(){
+    setSyncStatus('ok');
+    if (callback) callback(true);
+  })
+  .catch(function(err){
+    console.error('Error al guardar:', err);
+    setSyncStatus('error');
+    alert('No se pudo guardar en el servidor. Revisá tu conexión a internet e intentá de nuevo.');
+    if (callback) callback(false);
+  });
+}
 
 function fmt(iso){
   if(!iso) return '—';
@@ -473,7 +651,7 @@ function renderMes(){
     cells+='<div class="cal-num'+(esHoy?' hoy-num':'')+'">'+d+'</div>';
     evs.slice(0,3).forEach(function(e){
       cells+='<span class="ev-chip tipo-'+e.tipo+'" title="'+e.titulo+'">';
-      if(e.recordatorio) cells+='🔔 ';
+      if(e.recordatorio) cells+='<i class="ti ti-bell-filled"></i> ';
       cells+=e.titulo+'</span>';
     });
     if(evs.length>3) cells+='<div class="ev-mas">+'+(evs.length-3)+' más</div>';
@@ -502,11 +680,14 @@ function renderSemana(){
     html+='<div class="semana-dia'+(esHoy?' hoy-dia':'')+'">';
     html+='<div class="semana-dianame">'+DIAS[dia.getDay()]+'</div>';
     html+='<div class="semana-num">'+dia.getDate()+'</div>';
+    html+='<div class="semana-contenido">';
+    if (evs.length===0) html+='<span class="semana-vacio">Sin eventos</span>';
     evs.forEach(function(e){
       html+='<span class="ev-chip tipo-'+e.tipo+'" style="margin-bottom:4px;cursor:pointer" onclick="editarEvento(\''+e.id+'\')" title="'+e.titulo+'">';
-      if(e.recordatorio) html+='🔔 ';
+      if(e.recordatorio) html+='<i class="ti ti-bell-filled"></i> ';
       html+=(e.hora?e.hora+' ':'')+e.titulo+'</span>';
     });
+    html+='</div>';
     html+='</div>';
   }
   document.getElementById('semanaGrid').innerHTML = html;
@@ -543,13 +724,13 @@ function renderLista(){
     html+='</div>';
     if(e.desc) html+='<div class="ev-desc">'+e.desc+'</div>';
     html+='<div class="ev-meta">';
-    if(e.hora) html+='<span>🕐 '+e.hora+'</span>';
-    if(e.lugar) html+='<span>📍 '+e.lugar+'</span>';
+    if(e.hora) html+='<span><i class="ti ti-clock"></i> '+e.hora+'</span>';
+    if(e.lugar) html+='<span><i class="ti ti-map-pin"></i> '+e.lugar+'</span>';
     html+='</div>';
     html+='</div>';
     html+='<div class="ev-acciones">';
-    html+='<button class="btn btn-gris btn-sm" onclick="editarEvento(\''+e.id+'\')">✏️</button>';
-    html+='<button class="btn btn-rojo btn-sm" onclick="eliminarEvento(\''+e.id+'\')">🗑️</button>';
+    html+='<button class="btn btn-gris btn-sm" onclick="editarEvento(\''+e.id+'\')"><i class="ti ti-pencil"></i></button>';
+    html+='<button class="btn btn-rojo btn-sm" onclick="eliminarEvento(\''+e.id+'\')"><i class="ti ti-trash"></i></button>';
     html+='</div>';
     html+='</div>';
   });
@@ -558,7 +739,7 @@ function renderLista(){
 
 // ── MODAL ──
 function abrirModal(fecha){
-  document.getElementById('modalTitulo').textContent = '📌 Nuevo evento';
+  document.getElementById('modalTitulo').innerHTML = '<i class="ti ti-note"></i> Nuevo evento';
   document.getElementById('mId').value = '';
   document.getElementById('mTitulo').value = '';
   document.getElementById('mTipo').value = 'Reunión';
@@ -575,7 +756,7 @@ function abrirModal(fecha){
 function editarEvento(id){
   var e = EVENTOS.find(function(x){return x.id===id;});
   if(!e) return;
-  document.getElementById('modalTitulo').textContent = '✏️ Editar evento';
+  document.getElementById('modalTitulo').innerHTML = '<i class="ti ti-pencil"></i> Editar evento';
   document.getElementById('mId').value = e.id;
   document.getElementById('mTitulo').value = e.titulo;
   document.getElementById('mTipo').value = e.tipo;
@@ -611,22 +792,28 @@ function guardarEvento(){
     recordatorio: document.getElementById('mRecordatorio').checked
   };
 
+  var anterior = EVENTOS.slice();
   if (id) {
     var idx = EVENTOS.findIndex(function(x){return x.id===id;});
     if (idx>=0) EVENTOS[idx]=ev;
   } else {
     EVENTOS.push(ev);
   }
-  guardarLocal();
   cerrarModal();
   renderVista();
+  guardarRemoto(function(ok){
+    if (!ok) { EVENTOS = anterior; renderVista(); }
+  });
 }
 
 function eliminarEvento(id){
   if (!confirm('¿Eliminar este evento?')) return;
+  var anterior = EVENTOS.slice();
   EVENTOS = EVENTOS.filter(function(e){return e.id!==id;});
-  guardarLocal();
   renderVista();
+  guardarRemoto(function(ok){
+    if (!ok) { EVENTOS = anterior; renderVista(); }
+  });
 }
 
 // ── MODAL DÍA ──
@@ -634,17 +821,17 @@ function abrirDia(d){
   var isoFecha = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
   var evs = filtrarArea(EVENTOS).filter(function(e){ return e.fecha===isoFecha; })
                                 .sort(function(a,b){ return (a.hora||'zz').localeCompare(b.hora||'zz'); });
-  document.getElementById('modalDiaTitulo').textContent = '📅 '+d+' de '+MESES[calMonth]+' '+calYear+' ('+evs.length+' evento'+(evs.length!==1?'s':'')+')';
+  document.getElementById('modalDiaTitulo').innerHTML = '<i class="ti ti-calendar-event"></i> '+d+' de '+MESES[calMonth]+' '+calYear+' ('+evs.length+' evento'+(evs.length!==1?'s':'')+')';
   var html='';
   evs.forEach(function(e){
     html+='<div class="dia-ev-item">';
-    html+='<h4>'+(e.recordatorio?'🔔 ':'')+e.titulo+' <span class="ev-chip tipo-'+e.tipo+'" style="display:inline;font-size:10px">'+e.tipo+'</span></h4>';
-    if(e.hora) html+='<p>🕐 '+e.hora+'</p>';
-    if(e.lugar) html+='<p>📍 '+e.lugar+'</p>';
+    html+='<h4>'+(e.recordatorio?'<i class="ti ti-bell-filled"></i> ':'')+e.titulo+' <span class="ev-chip tipo-'+e.tipo+'" style="display:inline;font-size:10px">'+e.tipo+'</span></h4>';
+    if(e.hora) html+='<p><i class="ti ti-clock"></i> '+e.hora+'</p>';
+    if(e.lugar) html+='<p><i class="ti ti-map-pin"></i> '+e.lugar+'</p>';
     if(e.desc) html+='<p>'+e.desc+'</p>';
     html+='<div style="margin-top:8px;display:flex;gap:6px">';
-    html+='<button class="btn btn-azul btn-sm" onclick="cerrarModalDia();editarEvento(\''+e.id+'\')">✏️ Editar</button>';
-    html+='<button class="btn btn-rojo btn-sm" onclick="eliminarEvento(\''+e.id+'\');cerrarModalDia()">🗑️ Eliminar</button>';
+    html+='<button class="btn btn-azul btn-sm" onclick="cerrarModalDia();editarEvento(\''+e.id+'\')"><i class="ti ti-pencil"></i> Editar</button>';
+    html+='<button class="btn btn-rojo btn-sm" onclick="eliminarEvento(\''+e.id+'\');cerrarModalDia()"><i class="ti ti-trash"></i> Eliminar</button>';
     html+='</div>';
     html+='</div>';
   });
@@ -723,7 +910,7 @@ function ejecutarExport(){
 
 function exportarDiaActual(){
   var titleText = document.getElementById('modalDiaTitulo').textContent;
-  // Extraer fecha desde el título del modal (formato: 📅 D de Mes YYYY (...))
+  // Extraer fecha desde el título del modal (formato: "... D de Mes YYYY (...)")
   var m = titleText.match(/(\d+) de (\w+) (\d+)/);
   if(!m){ alert('No se pudo determinar la fecha.'); return; }
   var diaNum = parseInt(m[1]);
@@ -810,6 +997,13 @@ document.getElementById('modalExport').addEventListener('click',function(e){ if(
 // ── INIT ──
 initArea();
 renderVista();
+sincronizar();
+// Refrescar automáticamente cada 30 segundos
+setInterval(function(){ sincronizar(); }, 30000);
+// Refrescar al volver a la pestaña
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden) sincronizar();
+});
 </script>
 </body>
 </html>
